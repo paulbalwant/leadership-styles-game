@@ -181,6 +181,9 @@
       border-radius: 20px 20px 0 0;
       padding: 25px;
       box-shadow: var(--shadow-comic);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .status-bars {
@@ -1230,6 +1233,7 @@
         // Check for game over
         if (newHealth <= 0) {
           setGameState('gameOver');
+          window.scrollTo(0, 0);
           return;
         }
 
@@ -1238,8 +1242,11 @@
           const nextIndex = currentScenarioIndex + 1;
           setCurrentScenarioIndex(nextIndex);
           setTimeLeft(scenarios[nextIndex].timeLimit);
+          // Scroll to top for next scenario
+          window.scrollTo(0, 0);
         } else {
           setGameState('gameOver');
+          window.scrollTo(0, 0);
         }
       };
 
