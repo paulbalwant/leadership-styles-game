@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leadership Styles Challenge - Organizational Behavior Game</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    /* Import comic-style fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Permanent+Marker&display=swap');
+
+    :root {
+      --color-primary: #FF6B35;
+      --color-secondary: #F7931E;
+      --color-success: #4ECDC4;
+      --color-danger: #FF3366;
+      --color-health: #10b981;
+      --color-bg: #FFF8E7;
+      --color-panel: #FFFFFF;
+      --color-text: #2D3748;
+      --color-border: #2D3748;
+      --shadow-comic: 4px 4px 0px rgba(0, 0, 0, 0.8);
+      --shadow-hover: 6px 6px 0px rgba(0, 0, 0, 0.8);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    body {
+      font-family: 'Comic Neue', cursive, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .game-container {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background-image: 
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(255, 107, 53, 0.03) 2px,
+          rgba(255, 107, 53, 0.03) 4px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 2px,
+          rgba(255, 107, 53, 0.03) 2px,
+          rgba(255, 107, 53, 0.03) 4px
+        );
+    }
+
+    /* MENU SCREEN */
+    .menu-screen {
+      max-width: 600px;
+      width: 100%;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .menu-content {
+      background: var(--color-panel);
+      border: 4px solid var(--color-border);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: var(--shadow-comic);
+      text-align: center;
+    }
+
+    .game-title {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .title-main {
+      font-family: 'Bangers', cursive;
+      font-size: 3.5rem;
+      color: var(--color-primary);
+      text-shadow: 3px 3px 0px var(--color-border);
+      letter-spacing: 2px;
+      transform: rotate(-2deg);
+    }
+
+    .title-sub {
+      font-family: 'Permanent Marker', cursive;
+      font-size: 1.8rem;
+      color: var(--color-secondary);
+      text-shadow: 2px 2px 0px var(--color-border);
+      transform: rotate(1deg);
+    }
+
+    .game-description {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 30px;
+      color: var(--color-text);
+    }
+
+    .stats-preview {
+      display: flex;
+      justify-content: center;
+      margin: 30px 0;
+      gap: 15px;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+
+    .stat-icon {
+      font-size: 2rem;
+    }
+
+    .start-button {
+      font-family: 'Bangers', cursive;
+      font-size: 2rem;
+      padding: 15px 40px;
+      background: var(--color-primary);
+      color: white;
+      border: 4px solid var(--color-border);
+      border-radius: 15px;
+      box-shadow: var(--shadow-comic);
+      cursor: pointer;
+      transition: none;
+      letter-spacing: 1px;
+      margin-top: 20px;
+    }
+
+    .start-button:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: var(--shadow-hover);
+      background: var(--color-secondary);
+    }
+
+    .start-button:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+    }
+
+    /* GAME SCREEN */
+    .game-screen {
+      max-width: 900px;
+      width: 100%;
+      will-change: auto;
+    }
+
+    .game-header {
+      background: var(--color-panel);
+      border: 4px solid var(--color-border);
+      border-radius: 20px 20px 0 0;
+      padding: 25px;
+      box-shadow: var(--shadow-comic);
+    }
+
+    .status-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .status-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .bar-value {
+      font-family: 'Bangers', cursive;
+      font-size: 1.3rem;
+      letter-spacing: 1px;
+    }
+
+    .bar-track {
+      height: 30px;
+      background: #E2E8F0;
+      border: 3px solid var(--color-border);
+      border-radius: 15px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      transition: width 0.5s ease;
+      border-right: 3px solid var(--color-border);
+      position: relative;
+    }
+
+    .bar-fill.health {
+      background: linear-gradient(90deg, var(--color-health) 0%, #34d399 100%);
+    }
+
+    .bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255, 255, 255, 0.1) 10px,
+        rgba(255, 255, 255, 0.1) 20px
+      );
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      padding-top: 15px;
+      border-top: 3px dashed var(--color-border);
+    }
+
+    .scenario-count {
+      font-family: 'Permanent Marker', cursive;
+      font-size: 1.2rem;
+      color: var(--color-primary);
+    }
+
+    .timer {
+      font-family: 'Bangers', cursive;
+      font-size: 1.8rem;
+      color: var(--color-success);
+      padding: 5px 15px;
+      background: white;
+      border: 3px solid var(--color-border);
+      border-radius: 10px;
+      box-shadow: 2px 2px 0px var(--color-border);
+      transition: color 0.3s ease, background 0.3s ease;
+      transform: translateZ(0);
+      will-change: contents;
+    }
+
+    .timer.urgent {
+      color: var(--color-danger);
+      background: #fee;
+      transform: translateZ(0);
+    }
+
+    .scenario-panel {
+      background: var(--color-panel);
+      border-left: 4px solid var(--color-border);
+      border-right: 4px solid var(--color-border);
+      padding: 30px;
+      display: flex;
+      gap: 25px;
+      align-items: flex-start;
+    }
+
+    .character-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .character-avatar {
+      font-size: 5rem;
+      background: white;
+      border: 4px solid var(--color-border);
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-comic);
+    }
+
+    .character-name {
+      font-weight: bold;
+      font-size: 0.95rem;
+      text-align: center;
+      color: var(--color-primary);
+    }
+
+    .speech-bubble {
+      position: relative;
+      background: white;
+      border: 4px solid var(--color-border);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: var(--shadow-comic);
+      flex: 1;
+    }
+
+    .bubble-content {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .bubble-tail {
+      position: absolute;
+      left: -20px;
+      top: 30px;
+      width: 0;
+      height: 0;
+      border-top: 15px solid transparent;
+      border-bottom: 15px solid transparent;
+      border-right: 20px solid white;
+    }
+
+    .bubble-tail::before {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: -19px;
+      width: 0;
+      height: 0;
+      border-top: 19px solid transparent;
+      border-bottom: 19px solid transparent;
+      border-right: 24px solid var(--color-border);
+    }
+
+    .choices-panel {
+      background: var(--color-panel);
+      border: 4px solid var(--color-border);
+      border-radius: 0 0 20px 20px;
+      padding: 30px;
+      box-shadow: var(--shadow-comic);
+    }
+
+    .choices-title {
+      font-family: 'Permanent Marker', cursive;
+      font-size: 1.5rem;
+      color: var(--color-secondary);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .choices-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .choice-button {
+      background: white;
+      border: 4px solid var(--color-border);
+      border-radius: 15px;
+      padding: 20px;
+      cursor: pointer;
+      box-shadow: var(--shadow-comic);
+      text-align: left;
+      font-family: 'Comic Neue', cursive;
+      font-size: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: none;
+    }
+
+    .choice-button:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: var(--shadow-hover);
+      background: #fffef5;
+      border-color: var(--color-primary);
+    }
+
+    .choice-button:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+    }
+
+    .choice-text {
+      font-weight: 600;
+      font-size: 1.05rem;
+      line-height: 1.5;
+      color: var(--color-text);
+    }
+
+    /* GAME OVER SCREEN */
+    .gameover-screen {
+      max-width: 1000px;
+      width: 100%;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    .gameover-content {
+      background: var(--color-panel);
+      border: 4px solid var(--color-border);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: var(--shadow-comic);
+    }
+
+    .gameover-title {
+      font-family: 'Bangers', cursive;
+      font-size: 3.5rem;
+      text-align: center;
+      margin-bottom: 30px;
+      text-shadow: 3px 3px 0px var(--color-border);
+      letter-spacing: 2px;
+    }
+
+    .gameover-title.success {
+      color: var(--color-success);
+      animation: celebrate 0.6s ease-out;
+    }
+
+    .gameover-title.failure {
+      color: var(--color-danger);
+      animation: shake 0.5s ease-out;
+    }
+
+    @keyframes celebrate {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-5deg) scale(1.1); }
+      75% { transform: rotate(5deg) scale(1.1); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .final-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-box {
+      background: white;
+      border: 4px solid var(--color-border);
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: var(--shadow-comic);
+    }
+
+    .stat-label {
+      font-weight: bold;
+      color: var(--color-secondary);
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .stat-big {
+      font-family: 'Bangers', cursive;
+      font-size: 3rem;
+      color: var(--color-primary);
+      text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+    }
+
+    .failure-reason {
+      background: #fee;
+      border: 3px solid var(--color-danger);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 25px;
+      font-weight: bold;
+      color: var(--color-danger);
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
+    .leadership-summary {
+      margin: 30px 0;
+    }
+
+    .leadership-summary h2 {
+      font-family: 'Permanent Marker', cursive;
+      font-size: 1.8rem;
+      color: var(--color-primary);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .styles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 15px;
+      background: white;
+      border: 4px solid var(--color-border);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: var(--shadow-comic);
+    }
+
+    .style-item {
+      padding: 15px;
+      background: #f8f9fa;
+      border: 2px solid var(--color-border);
+      border-radius: 10px;
+      border-left: 6px solid var(--color-primary);
+    }
+
+    .style-name {
+      font-weight: bold;
+      color: var(--color-primary);
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+    }
+
+    .style-usage {
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .usage-correct {
+      color: var(--color-success);
+      font-weight: bold;
+    }
+
+    .usage-incorrect {
+      color: var(--color-danger);
+      font-weight: bold;
+    }
+
+    .decision-history {
+      margin: 30px 0;
+    }
+
+    .decision-history h3 {
+      font-family: 'Permanent Marker', cursive;
+      font-size: 1.5rem;
+      color: var(--color-secondary);
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .history-list {
+      max-height: 400px;
+      overflow-y: auto;
+      background: white;
+      border: 4px solid var(--color-border);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: var(--shadow-comic);
+    }
+
+    .history-item {
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #f8f9fa;
+      border: 2px solid var(--color-border);
+      border-radius: 10px;
+      border-left: 6px solid var(--color-primary);
+    }
+
+    .history-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .history-scenario {
+      font-weight: bold;
+      color: var(--color-primary);
+      margin-bottom: 5px;
+      font-size: 1rem;
+    }
+
+    .history-decision {
+      margin-bottom: 8px;
+      line-height: 1.4;
+      font-size: 0.95rem;
+    }
+
+    .history-result {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+
+    .result-style {
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 5px;
+      background: #e9ecef;
+    }
+
+    .result-correctness {
+      font-weight: bold;
+    }
+
+    .result-correctness.correct {
+      color: var(--color-success);
+    }
+
+    .result-correctness.incorrect {
+      color: var(--color-danger);
+    }
+
+    .restart-button {
+      font-family: 'Bangers', cursive;
+      font-size: 2rem;
+      padding: 15px 40px;
+      background: var(--color-primary);
+      color: white;
+      border: 4px solid var(--color-border);
+      border-radius: 15px;
+      box-shadow: var(--shadow-comic);
+      cursor: pointer;
+      transition: none;
+      letter-spacing: 1px;
+      display: block;
+      margin: 30px auto 0;
+    }
+
+    .restart-button:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: var(--shadow-hover);
+      background: var(--color-success);
+    }
+
+    .restart-button:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .title-main {
+        font-size: 2.5rem;
+      }
+      
+      .title-sub {
+        font-size: 1.4rem;
+      }
+      
+      .scenario-panel {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .bubble-tail {
+        display: none;
+      }
+      
+      .styles-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .final-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Scrollbar styling */
+    .history-list::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .history-list::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .history-list::-webkit-scrollbar-thumb {
+      background: var(--color-primary);
+      border-radius: 10px;
+      border: 2px solid var(--color-border);
+    }
+
+    .history-list::-webkit-scrollbar-thumb:hover {
+      background: var(--color-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    const LeadershipGame = () => {
+      // Game state
+      const [gameState, setGameState] = useState('menu');
+      const [orgHealth, setOrgHealth] = useState(100);
+      const [timeLeft, setTimeLeft] = useState(25);
+      const [currentScenarioIndex, setCurrentScenarioIndex] = useState(0);
+      const [decisionHistory, setDecisionHistory] = useState([]);
+      const [styleUsage, setStyleUsage] = useState({
+        coercive: { total: 0, correct: 0 },
+        authoritative: { total: 0, correct: 0 },
+        affiliative: { total: 0, correct: 0 },
+        democratic: { total: 0, correct: 0 },
+        pacesetting: { total: 0, correct: 0 },
+        coaching: { total: 0, correct: 0 }
+      });
+
+      // Leadership style definitions
+      const styleDefinitions = {
+        coercive: "Coercive",
+        authoritative: "Authoritative",
+        affiliative: "Affiliative",
+        democratic: "Democratic",
+        pacesetting: "Pacesetting",
+        coaching: "Coaching"
+      };
+
+      // Game scenarios based on Goleman's research
+      const scenarios = [
+        // Scenario 1: Crisis - Coercive appropriate
+        {
+          character: "Board Chair",
+          image: "👔",
+          situation: "The company is hemorrhaging cash. Sales dropped 40% last quarter, two major clients just left, and the stock price is in freefall. The board is demanding immediate action.",
+          timeLimit: 25,
+          choices: [
+            {
+              text: "Make tough decisions immediately: cut costs, eliminate underperforming divisions, and restructure without delay.",
+              style: "coercive",
+              impact: 8,
+              appropriateness: "correct"
+            },
+            {
+              text: "Call a series of meetings to gather input from all stakeholders on how to address the crisis.",
+              style: "democratic",
+              impact: -18,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Set extremely high performance targets and lead by personal example to inspire quick turnaround.",
+              style: "pacesetting",
+              impact: -15,
+              appropriateness: "incorrect"
+            }
+          ]
+        },
+
+        // Scenario 2: Need for direction - Authoritative appropriate
+        {
+          character: "Division VP",
+          image: "👨‍💼",
+          situation: "Your retail division has been drifting. Teams are working hard but in different directions. People are confused about priorities and questioning whether their work matters.",
+          timeLimit: 27,
+          choices: [
+            {
+              text: "Paint a compelling vision of where the division is heading and show each person how their role fits into achieving it.",
+              style: "authoritative",
+              impact: 8,
+              appropriateness: "correct"
+            },
+            {
+              text: "Focus on building stronger personal relationships with team members and creating a more positive atmosphere.",
+              style: "affiliative",
+              impact: 5,
+              appropriateness: "partially_correct"
+            },
+            {
+              text: "Demonstrate excellence through your own work and expect everyone to match your standards without much explanation.",
+              style: "pacesetting",
+              impact: -16,
+              appropriateness: "incorrect"
+            }
+          ]
+        },
+
+        // Scenario 3: Team conflict - Affiliative appropriate
+        {
+          character: "Team Member Sarah",
+          image: "👩‍💼",
+          situation: "Your team is fractured after a brutal restructuring. People barely speak to each other. Trust is broken, morale is at rock bottom, and the previous manager created a toxic competitive environment.",
+          timeLimit: 28,
+          choices: [
+            {
+              text: "Focus on healing relationships, acknowledge emotions openly, and rebuild trust through team-building and genuine care.",
+              style: "affiliative",
+              impact: 8,
+              appropriateness: "correct"
+            },
+            {
+              text: "Tell everyone to put aside their feelings and focus on hitting their performance targets immediately.",
+              style: "coercive",
+              impact: -20,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Help each team member identify their development needs and create individual coaching plans.",
+              style: "coaching",
+              impact: 5,
+              appropriateness: "partially_correct"
+            }
+          ]
+        },
+
+        // Scenario 4: Need for buy-in - Democratic appropriate
+        {
+          character: "Store Manager Mike",
+          image: "🧑‍💼",
+          situation: "You need to implement a major change to store operations, but you're uncertain about the best approach. Your experienced store managers have valuable insights but haven't been asked for input before.",
+          timeLimit: 30,
+          choices: [
+            {
+              text: "Facilitate open discussions, genuinely listen to concerns and ideas, and build consensus on the path forward.",
+              style: "democratic",
+              impact: 8,
+              appropriateness: "correct"
+            },
+            {
+              text: "Declare the new direction based on your analysis and demand immediate implementation.",
+              style: "coercive",
+              impact: -17,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Present your compelling vision for the change and inspire people to follow your lead.",
+              style: "authoritative",
+              impact: 6,
+              appropriateness: "partially_correct"
+            }
+          ]
+        },
+
+        // Scenario 5: High performers need quick results - Pacesetting appropriate
+        {
+          character: "Legal Team Lead",
+          image: "⚖️",
+          situation: "You're leading an elite team of highly motivated lawyers preparing for a major case. Everyone is self-directed, extremely competent, and thrives on challenge. The deadline is tight.",
+          timeLimit: 26,
+          choices: [
+            {
+              text: "Set exceptionally high standards, model excellence yourself, and trust the team to deliver without micromanagement.",
+              style: "pacesetting",
+              impact: 8,
+              appropriateness: "correct"
+            },
+            {
+              text: "Spend time understanding each person's development goals and provide detailed coaching on improvement areas.",
+              style: "coaching",
+              impact: -12,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Hold extensive meetings to ensure everyone has input on the case strategy.",
+              style: "democratic",
+              impact: -14,
+              appropriateness: "incorrect"
+            }
+          ]
+        },
+
+        // Scenario 6: Employee development - Coaching appropriate
+        {
+          character: "Employee Jordan",
+          image: "🧑‍💻",
+          situation: "Jordan is a talented employee who's plateaued. They're open to feedback and eager to grow but need guidance on developing new skills for advancement. They've explicitly asked for your help.",
+          timeLimit: 28,
+          choices: [
+            {
+              text: "Invest time in understanding their aspirations, identify development opportunities, and provide ongoing feedback and support.",
+              style: "coaching",
+              impact: 8,
+              appropriateness: "correct"
+            },
+            {
+              text: "Tell them exactly what to do to improve and demand they meet higher standards immediately.",
+              style: "coercive",
+              impact: -16,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Show them how you achieved success and expect them to replicate your approach.",
+              style: "pacesetting",
+              impact: -13,
+              appropriateness: "incorrect"
+            }
+          ]
+        },
+
+        // Scenario 7: Coercive inappropriate - normal operations
+        {
+          character: "Operations Manager",
+          image: "📊",
+          situation: "Your team is performing adequately. There's no crisis, but you want to drive improvements. People are generally competent and motivated.",
+          timeLimit: 27,
+          choices: [
+            {
+              text: "Issue ultimatums and demand immediate compliance with new standards, making it clear that failure isn't an option.",
+              style: "coercive",
+              impact: -18,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Paint a vision for where the team could go and inspire them to reach for higher goals.",
+              style: "authoritative",
+              impact: 7,
+              appropriateness: "correct"
+            },
+            {
+              text: "Work with each person to develop their capabilities for future challenges.",
+              style: "coaching",
+              impact: 7,
+              appropriateness: "correct"
+            }
+          ]
+        },
+
+        // Scenario 8: Authoritative inappropriate - leading experts
+        {
+          character: "Senior Scientist Dr. Chen",
+          image: "🔬",
+          situation: "You've just been promoted to lead a research team where everyone has more technical expertise than you. They're skeptical of your qualifications and protective of their autonomy.",
+          timeLimit: 29,
+          choices: [
+            {
+              text: "Assert your vision for the department's direction and tell them how their work should support it.",
+              style: "authoritative",
+              impact: -15,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Build consensus by facilitating discussions and genuinely incorporating their expert insights.",
+              style: "democratic",
+              impact: 8,
+              appropriateness: "correct"
+            },
+            {
+              text: "Focus on understanding each scientist's goals and help them develop their careers.",
+              style: "coaching",
+              impact: 6,
+              appropriateness: "partially_correct"
+            }
+          ]
+        },
+
+        // Scenario 9: Affiliative inappropriate - poor performance
+        {
+          character: "Underperformer Alex",
+          image: "😔",
+          situation: "Alex has been consistently missing deadlines and producing subpar work for months. The team is frustrated that nothing has been done. Alex seems comfortable with the status quo.",
+          timeLimit: 25,
+          choices: [
+            {
+              text: "Continue being supportive and nurturing, hoping the positive environment will eventually motivate improvement.",
+              style: "affiliative",
+              impact: -17,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Provide direct coaching on specific performance issues and create a clear improvement plan with accountability.",
+              style: "coaching",
+              impact: 7,
+              appropriateness: "correct"
+            },
+            {
+              text: "Make it clear that performance must improve immediately or there will be consequences.",
+              style: "coercive",
+              impact: 6,
+              appropriateness: "partially_correct"
+            }
+          ]
+        },
+
+        // Scenario 10: Democratic inappropriate - emergency
+        {
+          character: "Safety Officer",
+          image: "🚨",
+          situation: "A chemical spill has occurred in the warehouse. Employees are in potential danger and immediate evacuation decisions must be made. Every second counts.",
+          timeLimit: 22,
+          choices: [
+            {
+              text: "Call a team meeting to discuss evacuation options and gather everyone's input on the best approach.",
+              style: "democratic",
+              impact: -20,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Issue immediate evacuation orders and direct everyone to safety without discussion.",
+              style: "coercive",
+              impact: 8,
+              appropriateness: "correct"
+            },
+            {
+              text: "Demonstrate calm leadership by evacuating first and expecting others to follow your example.",
+              style: "pacesetting",
+              impact: -12,
+              appropriateness: "incorrect"
+            }
+          ]
+        },
+
+        // Scenario 11: Pacesetting inappropriate - struggling team
+        {
+          character: "New Hire Taylor",
+          image: "🆕",
+          situation: "Your team has several new members who are still learning the ropes. They're eager but make frequent mistakes. Morale is shaky and people seem anxious about their performance.",
+          timeLimit: 28,
+          choices: [
+            {
+              text: "Set extremely high standards, do much of the work yourself when they struggle, and expect them to figure it out.",
+              style: "pacesetting",
+              impact: -19,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Invest time in developing each person's skills through patient instruction and constructive feedback.",
+              style: "coaching",
+              impact: 8,
+              appropriateness: "correct"
+            },
+            {
+              text: "Create a supportive environment where people feel safe asking questions and learning from mistakes.",
+              style: "affiliative",
+              impact: 7,
+              appropriateness: "correct"
+            }
+          ]
+        },
+
+        // Scenario 12: Coaching inappropriate - urgent business need
+        {
+          character: "Product Manager",
+          image: "📱",
+          situation: "A competitor just launched a product that threatens your market position. You need a response strategy within 48 hours. Your team is capable but time is critical.",
+          timeLimit: 24,
+          choices: [
+            {
+              text: "Sit down with each team member to discuss their development goals and how this project might help them grow.",
+              style: "coaching",
+              impact: -16,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Clearly articulate the strategic direction and mobilize the team toward a unified response.",
+              style: "authoritative",
+              impact: 8,
+              appropriateness: "correct"
+            },
+            {
+              text: "Model the urgency by working around the clock yourself and expecting the team to match your pace.",
+              style: "pacesetting",
+              impact: 6,
+              appropriateness: "partially_correct"
+            }
+          ]
+        },
+
+        // Scenario 13: Multiple styles needed - turnaround
+        {
+          character: "Regional Director",
+          image: "🌍",
+          situation: "Your region just emerged from a crisis. You've made the tough cuts (coercive), but now people are traumatized and directionless. You need to rebuild while moving forward.",
+          timeLimit: 30,
+          choices: [
+            {
+              text: "Continue making unilateral decisions to maintain the momentum of the turnaround.",
+              style: "coercive",
+              impact: -15,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Cast a compelling vision for the future while also healing relationships and rebuilding trust.",
+              style: "authoritative",
+              impact: 8,
+              appropriateness: "correct"
+            },
+            {
+              text: "Focus purely on personal connections and emotional support without providing clear direction.",
+              style: "affiliative",
+              impact: -13,
+              appropriateness: "incorrect"
+            }
+          ]
+        },
+
+        // Scenario 14: Style flexibility needed
+        {
+          character: "HR Director",
+          image: "👥",
+          situation: "You're implementing a new performance management system. Some managers are experienced and want input (democratic), others are struggling and need coaching, and one is actively resisting.",
+          timeLimit: 32,
+          choices: [
+            {
+              text: "Use the same approach with everyone: gather input through multiple rounds of consultation meetings.",
+              style: "democratic",
+              impact: -14,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Adapt your approach: facilitate input from experienced managers, coach those who are struggling, and be directive with the resistor.",
+              style: "authoritative",
+              impact: 8,
+              appropriateness: "correct"
+            },
+            {
+              text: "Set the highest standards yourself and expect everyone to match your level of excellence with the new system.",
+              style: "pacesetting",
+              impact: -16,
+              appropriateness: "incorrect"
+            }
+          ]
+        },
+
+        // Scenario 15: Complex situation requiring judgment
+        {
+          character: "Executive Team",
+          image: "💼",
+          situation: "You're the new CEO. The company has serious strategic problems but also low morale from years of autocratic leadership. Quick action is needed, but people are burned out and cynical.",
+          timeLimit: 33,
+          choices: [
+            {
+              text: "Build consensus by extensively consulting stakeholders before making any changes, even if it takes months.",
+              style: "democratic",
+              impact: -12,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Immediately demand compliance with a new strategy to show you're decisive and in charge.",
+              style: "coercive",
+              impact: -17,
+              appropriateness: "incorrect"
+            },
+            {
+              text: "Articulate a clear, inspiring vision for the future while acknowledging past difficulties and demonstrating that you value people.",
+              style: "authoritative",
+              impact: 8,
+              appropriateness: "correct"
+            }
+          ]
+        }
+      ];
+
+      const totalScenarios = scenarios.length;
+      const currentScenario = scenarios[currentScenarioIndex];
+
+      // Timer effect
+      useEffect(() => {
+        if (gameState === 'playing' && timeLeft > 0) {
+          const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+          return () => clearTimeout(timer);
+        } else if (gameState === 'playing' && timeLeft === 0) {
+          handleChoice(null);
+        }
+      }, [timeLeft, gameState]);
+
+      const startGame = () => {
+        setGameState('playing');
+        setCurrentScenarioIndex(0);
+        setOrgHealth(100);
+        setTimeLeft(scenarios[0].timeLimit);
+        setDecisionHistory([]);
+        setStyleUsage({
+          coercive: { total: 0, correct: 0 },
+          authoritative: { total: 0, correct: 0 },
+          affiliative: { total: 0, correct: 0 },
+          democratic: { total: 0, correct: 0 },
+          pacesetting: { total: 0, correct: 0 },
+          coaching: { total: 0, correct: 0 }
+        });
+      };
+
+      const handleChoice = (choice) => {
+        if (!choice) {
+          const penalty = { 
+            text: "Time ran out - no decision made",
+            style: "none",
+            impact: -15,
+            appropriateness: "incorrect"
+          };
+          updateGameState(penalty, "TIMEOUT");
+        } else {
+          updateGameState(choice, choice.text);
+        }
+      };
+
+      const updateGameState = (choice, decisionText) => {
+        const newHealth = Math.max(0, Math.min(100, orgHealth + choice.impact));
+        setOrgHealth(newHealth);
+        
+        // Track style usage
+        if (choice.style !== "none") {
+          const newStyleUsage = { ...styleUsage };
+          newStyleUsage[choice.style].total += 1;
+          if (choice.appropriateness === "correct" || choice.appropriateness === "partially_correct") {
+            newStyleUsage[choice.style].correct += 1;
+          }
+          setStyleUsage(newStyleUsage);
+        }
+
+        // Track decision
+        setDecisionHistory([...decisionHistory, {
+          scenario: currentScenario.character,
+          situation: currentScenario.situation,
+          decision: decisionText,
+          style: choice.style,
+          appropriateness: choice.appropriateness,
+          healthChange: choice.impact
+        }]);
+
+        // Check for game over
+        if (newHealth <= 0) {
+          setGameState('gameOver');
+          return;
+        }
+
+        // Move to next scenario or end game
+        if (currentScenarioIndex < totalScenarios - 1) {
+          const nextIndex = currentScenarioIndex + 1;
+          setCurrentScenarioIndex(nextIndex);
+          setTimeLeft(scenarios[nextIndex].timeLimit);
+        } else {
+          setGameState('gameOver');
+        }
+      };
+
+      const MenuScreen = () => (
+        <div className="menu-screen">
+          <div className="menu-content">
+            <h1 className="game-title">
+              <span className="title-main">Leadership Styles</span>
+              <span className="title-sub">Challenge</span>
+            </h1>
+            <p className="game-description">
+              Master the six leadership styles and learn when each is most effective. 
+              Navigate 15 challenging scenarios and keep your organization healthy through 
+              adaptive leadership.
+            </p>
+            <div className="stats-preview">
+              <div className="stat-item">
+                <span className="stat-icon">🏥</span>
+                <span>Organizational Health</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-icon">⏱️</span>
+                <span>Time Pressure</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-icon">🎯</span>
+                <span>15 Scenarios</span>
+              </div>
+            </div>
+            <button className="start-button" onClick={startGame}>
+              Begin Leadership Challenge
+            </button>
+          </div>
+        </div>
+      );
+
+      const GameScreen = () => {
+        const scenarioContent = useMemo(() => (
+          <>
+            <div className="scenario-panel">
+              <div className="character-section">
+                <div className="character-avatar">{currentScenario.image}</div>
+                <div className="character-name">{currentScenario.character}</div>
+              </div>
+              <div className="speech-bubble">
+                <div className="bubble-content">
+                  {currentScenario.situation}
+                </div>
+                <div className="bubble-tail"></div>
+              </div>
+            </div>
+
+            <div className="choices-panel">
+              <h3 className="choices-title">How will you lead?</h3>
+              <div className="choices-grid">
+                {currentScenario.choices.map((choice, index) => (
+                  <button
+                    key={index}
+                    className="choice-button"
+                    onClick={() => handleChoice(choice)}
+                  >
+                    <span className="choice-text">{choice.text}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        ), [currentScenarioIndex]);
+
+        return (
+          <div className="game-screen" key={`game-${currentScenarioIndex}`}>
+            <div className="game-header">
+              <div className="status-bars">
+                <div className="status-bar">
+                  <div className="bar-label">
+                    <span>🏥 Organizational Health</span>
+                    <span className="bar-value">{orgHealth}%</span>
+                  </div>
+                  <div className="bar-track">
+                    <div 
+                      className="bar-fill health" 
+                      style={{ width: `${orgHealth}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="progress-info">
+                <span className="scenario-count">Scenario {currentScenarioIndex + 1} of {totalScenarios}</span>
+                <span className={`timer ${timeLeft <= 5 ? 'urgent' : ''}`}>
+                  ⏱️ {timeLeft}s
+                </span>
+              </div>
+            </div>
+
+            {scenarioContent}
+          </div>
+        );
+      };
+
+      const GameOverScreen = () => {
+        const survived = orgHealth > 0;
+
+        return (
+          <div className="gameover-screen">
+            <div className="gameover-content">
+              <h1 className={`gameover-title ${survived ? 'success' : 'failure'}`}>
+                {survived ? '🎉 Leadership Challenge Complete!' : '💥 Organization Failed!'}
+              </h1>
+              
+              <div className="final-stats">
+                <div className="stat-box">
+                  <div className="stat-label">Final Health</div>
+                  <div className="stat-big">{orgHealth}%</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-label">Scenarios Completed</div>
+                  <div className="stat-big">{currentScenarioIndex + 1}/{totalScenarios}</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-label">Correct Decisions</div>
+                  <div className="stat-big">
+                    {decisionHistory.filter(d => d.appropriateness === "correct").length}
+                  </div>
+                </div>
+              </div>
+
+              {!survived && (
+                <div className="failure-reason">
+                  Organizational health collapsed. Poor leadership choices undermined trust, 
+                  morale, and performance. Leadership is contextual – the right style at the 
+                  wrong time can be as damaging as incompetence.
+                </div>
+              )}
+
+              <div className="leadership-summary">
+                <h2>Your Leadership Style Usage</h2>
+                <div className="styles-grid">
+                  {Object.entries(styleUsage).map(([style, stats]) => (
+                    <div key={style} className="style-item">
+                      <div className="style-name">{styleDefinitions[style]}</div>
+                      <div className="style-usage">
+                        Used <strong>{stats.total}</strong> time{stats.total !== 1 ? 's' : ''}<br/>
+                        <span className="usage-correct">✓ Appropriate: {stats.correct}</span><br/>
+                        <span className="usage-incorrect">✗ Inappropriate: {stats.total - stats.correct}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="decision-history">
+                <h3>Your Leadership Journey</h3>
+                <div className="history-list">
+                  {decisionHistory.map((decision, index) => (
+                    <div key={index} className="history-item">
+                      <div className="history-scenario">
+                        Scenario {index + 1}: {decision.scenario}
+                      </div>
+                      <div className="history-decision">{decision.decision}</div>
+                      <div className="history-result">
+                        <span className="result-style">
+                          {decision.style === "none" ? "Timeout" : styleDefinitions[decision.style]}
+                        </span>
+                        <span className={`result-correctness ${
+                          decision.appropriateness === "correct" || decision.appropriateness === "partially_correct" 
+                            ? 'correct' 
+                            : 'incorrect'
+                        }`}>
+                          {decision.appropriateness === "correct" && "✓ Appropriate"}
+                          {decision.appropriateness === "partially_correct" && "~ Acceptable"}
+                          {decision.appropriateness === "incorrect" && "✗ Inappropriate"}
+                        </span>
+                        <span style={{ 
+                          color: decision.healthChange > 0 ? 'var(--color-success)' : 'var(--color-danger)',
+                          fontWeight: 'bold'
+                        }}>
+                          {decision.healthChange > 0 ? '+' : ''}{decision.healthChange}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button className="restart-button" onClick={startGame}>
+                Try Again
+              </button>
+            </div>
+          </div>
+        );
+      };
+
+      return (
+        <div className="game-container">
+          {gameState === 'menu' && <MenuScreen />}
+          {gameState === 'playing' && <GameScreen />}
+          {gameState === 'gameOver' && <GameOverScreen />}
+        </div>
+      );
+    };
+
+    ReactDOM.render(<LeadershipGame />, document.getElementById('root'));
+  </script>
+</body>
+</html>
